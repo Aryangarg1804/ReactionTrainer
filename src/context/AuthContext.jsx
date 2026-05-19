@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   updateProfile,
 } from 'firebase/auth';
-import { ref, set, get, serverTimestamp } from 'firebase/database';
+import { ref, set, get, remove, serverTimestamp } from 'firebase/database';
 import { auth, googleProvider, db } from '../firebase';
 
 const AuthContext = createContext(null);
@@ -46,6 +46,10 @@ export function AuthProvider({ children }) {
     });
   }
 
+  async function syncActiveUser(uid) {
+    await set(ref(db, 'activeUser'), { uid });
+  }
+
   // ── Fetch user profile from DB ─────────────────────────────────────────────
   async function fetchUserProfile(uid) {
     const snap = await get(ref(db, `users/${uid}`));
@@ -58,17 +62,22 @@ export function AuthProvider({ children }) {
     await updateProfile(cred.user, { displayName });
     await sendEmailVerification(cred.user);
     await createUserProfile(cred.user.uid, { name: displayName, email });
+    await syncActiveUser(cred.user.uid);
     return cred;
   }
 
   // ── Login ──────────────────────────────────────────────────────────────────
   function login(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
+    return signInWithEmailAndPassword(auth, email, password).then(async (cred) => {
+      await syncActiveUser(cred.user.uid);
+      return cred;
+    });
   }
 
   // ── Google Sign-In ─────────────────────────────────────────────────────────
   async function loginWithGoogle() {
     const cred = await signInWithPopup(auth, googleProvider);
+    await syncActiveUser(cred.user.uid);
     // Create profile only if first-time user
     const snap = await get(ref(db, `users/${cred.user.uid}`));
     if (!snap.exists()) {
@@ -84,14 +93,17 @@ export function AuthProvider({ children }) {
   // ── Logout ─────────────────────────────────────────────────────────────────
   function logout() {
     setUserProfile(null);
-    return signOut(auth);
+    return remove(ref(db, 'activeUser')).then(() => signOut(auth));
   }
 
   // ── Auth state listener ────────────────────────────────────────────────────
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      if (user) await fetchUserProfile(user.uid);
+      if (user) {
+        await syncActiveUser(user.uid);
+        await fetchUserProfile(user.uid);
+      }
       setLoading(false);
     });
     return unsub;

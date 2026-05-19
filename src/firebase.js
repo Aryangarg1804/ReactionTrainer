@@ -28,5 +28,6 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // Realtime Database
 export const db = getDatabase(app);
+export const database = db;
 
 export default app;

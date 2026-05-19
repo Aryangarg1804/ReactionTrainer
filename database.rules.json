@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    },
+    "gameSettings": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    },
+    "scores": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    },
+    "esp32Data": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": true
+      }
+    },
+    "leaderboard": {
+      ".read": "auth !== null",
+      ".write": false
+    }
+  }
+}

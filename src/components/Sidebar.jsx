@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Trophy, User, Settings, LogOut,
-  Zap, Menu, X, Activity
+  Menu, X, Activity
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -37,12 +37,11 @@ export default function Sidebar() {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-cyan-500/10">
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-          <Zap size={18} className="text-dark-900" strokeWidth={2.5} />
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 overflow-hidden">
+          <img src="/aryan.png" alt="REACTION TRAINER logo" className="w-full h-full object-cover" />
         </div>
         <div>
-          <p className="font-display font-700 text-sm uppercase tracking-widest text-cyan-400" style={{fontFamily:'Rajdhani',fontWeight:700,letterSpacing:'0.15em'}}>Reaction</p>
-          <p className="text-xs text-slate-500" style={{fontFamily:'Share Tech Mono',fontSize:'0.65rem'}}>TRAINER v2.0</p>
+          <p className="font-display font-700 text-sm tracking-widest text-cyan-400" style={{fontFamily:'Rajdhani',fontWeight:700,letterSpacing:'0.05em'}}>REACTION TRAINER</p>
         </div>
       </div>
 
@@ -109,10 +108,10 @@ export default function Sidebar() {
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-dark-800/95 border-b border-cyan-500/10 backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
-            <Zap size={14} className="text-dark-900" />
+          <div className="w-7 h-7 rounded overflow-hidden">
+            <img src="/aryan.png" alt="REACTION TRAINER" className="w-full h-full object-cover" />
           </div>
-          <span className="font-display font-700 text-cyan-400 text-sm tracking-widest uppercase" style={{fontFamily:'Rajdhani',fontWeight:700}}>Reaction Trainer</span>
+          <span className="font-display font-700 text-cyan-400 text-sm tracking-widest" style={{fontFamily:'Rajdhani',fontWeight:700}}>REACTION TRAINER</span>
         </div>
         <button onClick={() => setMobileOpen(v => !v)} className="text-slate-400 hover:text-cyan-400 transition-colors">
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}

@@ -1,3 +1,4 @@
+
 # ⚡ Reaction Trainer — ESP32 Gaming Hub
 
 A full-stack IoT reaction training application built with React + Vite + Tailwind CSS + Firebase, designed to sync with an ESP32 hardware device over WiFi.
@@ -162,3 +163,6 @@ Apply `database.rules.json` to your Firebase Realtime Database for proper access
 - **Notifications**: React Hot Toast
 - **Icons**: Lucide React
 - **Fonts**: Rajdhani + Exo 2 + Share Tech Mono (Google Fonts)
+=======
+# ReactionTrainer
+>>>>>>> 3f68075b10e3e79721fa9b7d2cc124a50d9657b5

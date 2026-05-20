@@ -144,6 +144,28 @@ npm run preview
 
 ---
 
+## ▲ Deploy on Vercel
+
+1. Push this repo to GitHub.
+2. In Vercel, create a new project and import this repository.
+3. Keep defaults:
+  - Framework Preset: `Vite`
+  - Build Command: `npm run build`
+  - Output Directory: `dist`
+4. Add environment variables in Vercel Project Settings:
+  - `VITE_FIREBASE_API_KEY`
+  - `VITE_FIREBASE_AUTH_DOMAIN`
+  - `VITE_FIREBASE_DATABASE_URL`
+  - `VITE_FIREBASE_PROJECT_ID`
+  - `VITE_FIREBASE_STORAGE_BUCKET`
+  - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+  - `VITE_FIREBASE_APP_ID`
+5. Redeploy after setting env vars.
+
+`vercel.json` is included to rewrite all app routes to `index.html`, so React Router paths like `/dashboard` work directly on refresh.
+
+---
+
 ## 🔒 Security
 
 Apply `database.rules.json` to your Firebase Realtime Database for proper access control:
@@ -163,6 +185,3 @@ Apply `database.rules.json` to your Firebase Realtime Database for proper access
 - **Notifications**: React Hot Toast
 - **Icons**: Lucide React
 - **Fonts**: Rajdhani + Exo 2 + Share Tech Mono (Google Fonts)
-=======
-# ReactionTrainer
->>>>>>> 3f68075b10e3e79721fa9b7d2cc124a50d9657b5

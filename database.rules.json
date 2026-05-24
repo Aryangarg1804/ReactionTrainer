@@ -1,8 +1,8 @@
 {
   "rules": {
     "users": {
+      ".read": "auth !== null",
       "$uid": {
-        ".read": "auth !== null && auth.uid === $uid",
         ".write": "auth !== null && auth.uid === $uid"
       }
     },
@@ -17,6 +17,10 @@
         ".read": "auth !== null && auth.uid === $uid",
         ".write": "auth !== null && auth.uid === $uid"
       }
+    },
+    "activeUser": {
+      ".read": true,
+      ".write": true
     },
     "esp32Data": {
       "$uid": {

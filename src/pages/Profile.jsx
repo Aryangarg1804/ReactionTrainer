@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { User, Mail, Calendar, Shield, Camera, Save, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useUserStats } from '../hooks/useUserStats';
+import { useUserStats, useAllScores } from '../hooks/useUserStats';
 import { updateUserProfile } from '../services/dbService';
 import { updateProfile } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -14,6 +14,18 @@ const LEVEL_COLORS = { easy: '#39ff14', medium: '#00f5ff', hard: '#ff6b00', extr
 export default function Profile() {
   const { currentUser } = useAuth();
   const { stats } = useUserStats();
+  const { allScores } = useAllScores();
+
+  // Compute real best avg reaction from all game history
+  const validReactions = allScores
+    .map(g => g.averageReaction)
+    .filter(v => v != null && v > 0);
+  const bestAvgReaction = validReactions.length > 0
+    ? Math.round(Math.min(...validReactions))
+    : null;
+  const lastAvgReaction = validReactions.length > 0
+    ? Math.round(validReactions[validReactions.length - 1])
+    : null;
 
   const [name, setName] = useState(currentUser?.displayName ?? '');
   const [saving, setSaving] = useState(false);
@@ -100,10 +112,10 @@ export default function Profile() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label:'Best Score',   value: stats?.bestScore ?? 0,                             color:'#fbbf24' },
-          { label:'Best Reaction',value: stats?.bestReaction ? `${stats.bestReaction}ms`:'—', color:'#00f5ff' },
-          { label:'Accuracy',     value: `${stats?.accuracy ?? 0}%`,                        color:'#39ff14' },
-          { label:'Total Games',  value: stats?.totalGames ?? 0,                            color:'#bf00ff' },
+          { label:'Best Score',    value: stats?.bestScore ?? 0,                                           color:'#fbbf24' },
+          { label:'Best Avg RT',   value: bestAvgReaction ? `${bestAvgReaction}ms` : '—',                 color:'#00f5ff' },
+          { label:'Accuracy',      value: `${stats?.accuracy ?? 0}%`,                                     color:'#39ff14' },
+          { label:'Total Games',   value: stats?.totalGames ?? 0,                                         color:'#bf00ff' },
         ].map(({ label, value, color }) => (
           <div key={label} className="glass-card p-4 text-center" style={{'--accent-color':color}}>
             <p className="text-xs text-slate-600 mb-1 uppercase" style={{fontFamily:'Share Tech Mono',fontSize:'0.6rem'}}>{label}</p>

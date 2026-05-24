@@ -6,6 +6,7 @@ import {
   Menu, X, Activity
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useEsp32Status } from '../hooks/useUserStats';
 import toast from 'react-hot-toast';
 
 const links = [
@@ -19,6 +20,7 @@ export default function Sidebar() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { effectiveOnline, recentlyActive, lastSeenLabel } = useEsp32Status();
 
   async function handleLogout() {
     try {
@@ -68,10 +70,23 @@ export default function Sidebar() {
           <Activity size={12} className="text-slate-600" />
         </div>
         <div className="flex items-center gap-2">
-          <span className="offline-dot"></span>
-          <span className="text-xs text-red-400" style={{fontFamily:'Share Tech Mono'}}>OFFLINE</span>
+          {effectiveOnline ? (
+            <><span className="online-dot" /><span className="text-xs text-green-400" style={{fontFamily:'Share Tech Mono'}}>ONLINE</span></>
+          ) : recentlyActive ? (
+            <><span style={{ width:7, height:7, borderRadius:'50%', background:'#ff6b00', boxShadow:'0 0 6px #ff6b00', display:'inline-block', flexShrink:0 }} /><span className="text-xs" style={{fontFamily:'Share Tech Mono',color:'#ff6b00'}}>IDLE</span></>
+          ) : (
+            <><span className="offline-dot" /><span className="text-xs text-red-400" style={{fontFamily:'Share Tech Mono'}}>OFFLINE</span></>
+          )}
         </div>
-        <p className="text-xs text-slate-600 mt-1">Connect hardware to sync</p>
+        <p className="text-xs text-slate-600 mt-1">
+          {effectiveOnline
+            ? 'Game in progress'
+            : recentlyActive
+            ? `Last active ${lastSeenLabel}`
+            : lastSeenLabel
+            ? `Last seen ${lastSeenLabel}`
+            : 'Connect hardware to sync'}
+        </p>
       </div>
 
       {/* User + Logout */}

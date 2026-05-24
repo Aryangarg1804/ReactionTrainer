@@ -254,6 +254,23 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Fade + slide in (game history rows) ─────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Pulse slow (online dot) ─────────────────── */
+@keyframes pulse-slow {
+  0%, 100% { box-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14; }
+  50%       { box-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14; }
+}
+
+/* ── Game history row hover ──────────────────── */
+.game-history-row:hover {
+  background: rgba(0, 245, 255, 0.03) !important;
+}
+
 /* ── Toast overrides ─────────────────────────── */
 .react-hot-toast-container {
   font-family: 'Exo 2', sans-serif;

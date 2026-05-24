@@ -3,24 +3,30 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Trophy, User, Settings, LogOut,
-  Menu, X, Activity
+  Menu, X, Activity, Sun, Moon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useEsp32Status } from '../hooks/useUserStats';
 import toast from 'react-hot-toast';
 
 const links = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/leaderboard', icon: Trophy,          label: 'Leaderboard' },
-  { to: '/profile',    icon: User,             label: 'Profile' },
-  { to: '/settings',   icon: Settings,         label: 'Settings' },
+  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/leaderboard', icon: Trophy,           label: 'Leaderboard' },
+  { to: '/profile',     icon: User,             label: 'Profile' },
+  { to: '/settings',    icon: Settings,         label: 'Settings' },
 ];
+
+// Sidebar is always dark bg for visual separation in both themes
+const SIDEBAR_BG   = '#1e293b';
+const SIDEBAR_TEXT = 'rgba(226,232,240,0.55)';
 
 export default function Sidebar() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { effectiveOnline, recentlyActive, lastSeenLabel } = useEsp32Status();
+  const { isDark, toggleTheme } = useTheme();
 
   async function handleLogout() {
     try {
@@ -36,20 +42,46 @@ export default function Sidebar() {
     .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-cyan-500/10">
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 overflow-hidden">
-          <img src="/aryan.png" alt="REACTION TRAINER logo" className="w-full h-full object-cover" />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: SIDEBAR_BG }}>
+      {/* ── Logo + Theme Toggle ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '18px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
+            <img src="/aryan.png" alt="REACTION TRAINER logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <p style={{ fontFamily: 'Rajdhani', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.06em', color: '#00f5ff' }}>
+            REACTION TRAINER
+          </p>
         </div>
-        <div>
-          <p className="font-display font-700 text-sm tracking-widest text-cyan-400" style={{fontFamily:'Rajdhani',fontWeight:700,letterSpacing:'0.05em'}}>REACTION TRAINER</p>
-        </div>
+
+        {/* ── Dark / Light toggle ── */}
+        <button
+          onClick={toggleTheme}
+          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 8px', borderRadius: 20,
+            background: isDark ? 'rgba(0,245,255,0.1)' : 'rgba(251,191,36,0.15)',
+            border: `1px solid ${isDark ? 'rgba(0,245,255,0.2)' : 'rgba(251,191,36,0.35)'}`,
+            cursor: 'pointer', outline: 'none', flexShrink: 0,
+            transition: 'all 0.25s ease',
+          }}
+        >
+          {isDark
+            ? <Sun  size={13} style={{ color: '#fbbf24' }} />
+            : <Moon size={13} style={{ color: '#00f5ff' }} />
+          }
+        </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        <p className="text-xs text-slate-600 px-3 pb-2 uppercase tracking-widest" style={{fontFamily:'Share Tech Mono',fontSize:'0.6rem'}}>Navigation</p>
+      {/* ── Navigation ── */}
+      <nav style={{ flex: 1, padding: '12px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <p style={{ fontFamily: 'Share Tech Mono', fontSize: '0.57rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 8px', marginBottom: 6 }}>
+          Navigation
+        </p>
         {links.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
@@ -63,50 +95,86 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* ESP32 Status Widget */}
-      <div className="mx-3 mb-3 glass-card p-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-slate-500 uppercase tracking-wider" style={{fontFamily:'Share Tech Mono',fontSize:'0.6rem'}}>ESP32 Device</span>
-          <Activity size={12} className="text-slate-600" />
+      {/* ── ESP32 Status Widget ── */}
+      <div style={{
+        margin: '0 10px 10px', padding: '10px 12px', borderRadius: 10,
+        background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontFamily: 'Share Tech Mono', fontSize: '0.55rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>ESP32 Device</span>
+          <Activity size={11} style={{ color: 'rgba(255,255,255,0.2)' }} />
         </div>
-        <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {effectiveOnline ? (
-            <><span className="online-dot" /><span className="text-xs text-green-400" style={{fontFamily:'Share Tech Mono'}}>ONLINE</span></>
+            <><span className="online-dot" /><span style={{ fontFamily: 'Share Tech Mono', fontSize: '0.62rem', color: '#39ff14' }}>ONLINE</span></>
           ) : recentlyActive ? (
-            <><span style={{ width:7, height:7, borderRadius:'50%', background:'#ff6b00', boxShadow:'0 0 6px #ff6b00', display:'inline-block', flexShrink:0 }} /><span className="text-xs" style={{fontFamily:'Share Tech Mono',color:'#ff6b00'}}>IDLE</span></>
+            <><span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ff6b00', boxShadow: '0 0 6px #ff6b00', display: 'inline-block', flexShrink: 0 }} /><span style={{ fontFamily: 'Share Tech Mono', fontSize: '0.62rem', color: '#ff6b00' }}>IDLE</span></>
           ) : (
-            <><span className="offline-dot" /><span className="text-xs text-red-400" style={{fontFamily:'Share Tech Mono'}}>OFFLINE</span></>
+            <><span className="offline-dot" /><span style={{ fontFamily: 'Share Tech Mono', fontSize: '0.62rem', color: '#ff0040' }}>OFFLINE</span></>
           )}
         </div>
-        <p className="text-xs text-slate-600 mt-1">
-          {effectiveOnline
-            ? 'Game in progress'
-            : recentlyActive
-            ? `Last active ${lastSeenLabel}`
-            : lastSeenLabel
-            ? `Last seen ${lastSeenLabel}`
+        <p style={{ fontFamily: 'Share Tech Mono', fontSize: '0.55rem', color: 'rgba(255,255,255,0.22)', marginTop: 5 }}>
+          {effectiveOnline ? 'Game in progress'
+            : recentlyActive ? `Last active ${lastSeenLabel}`
+            : lastSeenLabel ? `Last seen ${lastSeenLabel}`
             : 'Connect hardware to sync'}
         </p>
       </div>
 
-      {/* User + Logout */}
-      <div className="border-t border-cyan-500/10 p-3">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center text-xs font-bold text-dark-900 shrink-0">
+      {/* ── User + Theme label + Logout ── */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px' }}>
+        {/* Theme indicator pill */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginBottom: 8, padding: '6px 8px', borderRadius: 8,
+          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
+        }}>
+          <span style={{ fontFamily: 'Share Tech Mono', fontSize: '0.55rem', color: 'rgba(255,255,255,0.3)' }}>
+            {isDark ? '🌙  Dark Mode' : '☀️  Light Mode'}
+          </span>
+          <button
+            onClick={toggleTheme}
+            style={{
+              fontFamily: 'Share Tech Mono', fontSize: '0.52rem',
+              color: isDark ? '#fbbf24' : '#00f5ff',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              padding: 0, textDecoration: 'underline', textUnderlineOffset: 2,
+            }}
+          >
+            Switch
+          </button>
+        </div>
+
+        {/* User info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 4px' }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg, #00b4c8, #0080ff)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'Rajdhani', fontWeight: 700, fontSize: '0.7rem', color: '#fff',
+          }}>
             {initials}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-200 truncate" style={{fontFamily:'Rajdhani',fontWeight:600}}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ fontFamily: 'Rajdhani', fontWeight: 600, fontSize: '0.82rem', color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {currentUser?.displayName ?? 'Operator'}
             </p>
-            <p className="text-xs text-slate-600 truncate">{currentUser?.email}</p>
+            <p style={{ fontFamily: 'Share Tech Mono', fontSize: '0.52rem', color: 'rgba(255,255,255,0.25)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {currentUser?.email}
+            </p>
           </div>
         </div>
+
         <button
           onClick={handleLogout}
-          className="btn-cyber btn-outline-cyber w-full mt-2 py-2 text-sm flex items-center justify-center gap-2 rounded-lg"
+          className="btn-cyber btn-outline-cyber"
+          style={{
+            width: '100%', marginTop: 8, padding: '7px', fontSize: '0.78rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            borderRadius: 8,
+          }}
         >
-          <LogOut size={14} />
+          <LogOut size={13} />
           Logout
         </button>
       </div>
@@ -116,28 +184,50 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-dark-800 border-r border-cyan-500/10 h-screen sticky top-0 overflow-y-auto">
+      <aside
+        className="hidden lg:flex flex-col"
+        style={{
+          width: 220, flexShrink: 0, height: '100vh',
+          position: 'sticky', top: 0, overflowY: 'auto',
+          background: SIDEBAR_BG, borderRight: '1px solid rgba(255,255,255,0.07)',
+        }}
+      >
         <SidebarContent />
       </aside>
 
-      {/* Mobile Top Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-dark-800/95 border-b border-cyan-500/10 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded overflow-hidden">
-            <img src="/aryan.png" alt="REACTION TRAINER" className="w-full h-full object-cover" />
+      {/* Mobile Top Bar — hidden on desktop (lg:hidden must control display, not inline style) */}
+      <div
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between"
+        style={{
+          padding: '10px 16px',
+          background: `${SIDEBAR_BG}f2`,
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 26, height: 26, borderRadius: 6, overflow: 'hidden' }}>
+            <img src="/aryan.png" alt="REACTION TRAINER" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <span className="font-display font-700 text-cyan-400 text-sm tracking-widest" style={{fontFamily:'Rajdhani',fontWeight:700}}>REACTION TRAINER</span>
+          <span style={{ fontFamily: 'Rajdhani', fontWeight: 700, fontSize: '0.85rem', color: '#00f5ff', letterSpacing: '0.05em' }}>
+            REACTION TRAINER
+          </span>
         </div>
-        <button onClick={() => setMobileOpen(v => !v)} className="text-slate-400 hover:text-cyan-400 transition-colors">
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button onClick={toggleTheme} title="Toggle theme" style={{ background: 'none', border: 'none', cursor: 'pointer', color: isDark ? '#fbbf24' : '#00f5ff', padding: 4 }}>
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <button onClick={() => setMobileOpen(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}>
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-56 bg-dark-800 border-r border-cyan-500/10 overflow-y-auto">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} className="lg:hidden">
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} onClick={() => setMobileOpen(false)} />
+          <aside style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 220, overflowY: 'auto' }}>
             <SidebarContent />
           </aside>
         </div>

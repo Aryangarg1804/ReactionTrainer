@@ -24,6 +24,63 @@ export const DIFFICULTY_MAP = {
   extreme: 1000,
 };
 
+// Reverse map: ms → level name (matches ESP32 output)
+const DIFF_TO_LEVEL = { 3000: 'easy', 2000: 'medium', 1500: 'hard', 1000: 'extreme' };
+
+/**
+ * Compute advanced stats (avgScore, per-level breakdown) from a user's full score
+ * history and persist them to /users/{uid} so the Leaderboard can rank by them.
+ * Called client-side for the current user only (scores of other users are private).
+ */
+export async function syncUserAdvancedStats(uid, allScores) {
+  if (!uid || !allScores || allScores.length === 0) return;
+
+  // ── Overall stats ────────────────────────────────────────────────────────
+  const scores    = allScores.map(g => g.score ?? 0);
+  const reactions = allScores.map(g => g.averageReaction).filter(v => v > 0);
+  const accs      = allScores.map(g => g.accuracy ?? 0);
+
+  const avgScore    = scores.reduce((a, b) => a + b, 0)    / scores.length;
+  const avgReaction = reactions.length
+    ? reactions.reduce((a, b) => a + b, 0) / reactions.length
+    : 0;
+  const avgAccuracy = accs.reduce((a, b) => a + b, 0) / accs.length;
+
+  // ── Per-level stats ──────────────────────────────────────────────────────
+  const LEVELS = ['easy', 'medium', 'hard', 'extreme'];
+  const levelStats = {};
+  for (const level of LEVELS) {
+    const games = allScores.filter(g => {
+      const lvl = g.level ?? DIFF_TO_LEVEL[g.difficulty];
+      return lvl === level;
+    });
+    if (games.length === 0) continue;
+
+    const lvlScores    = games.map(g => g.score ?? 0);
+    const lvlReactions = games.map(g => g.averageReaction).filter(v => v > 0);
+    const lvlAccs      = games.map(g => g.accuracy ?? 0);
+
+    levelStats[level] = {
+      games:       games.length,
+      avgScore:    Math.round((lvlScores.reduce((a, b) => a + b, 0) / lvlScores.length) * 10) / 10,
+      bestScore:   Math.max(...lvlScores),
+      avgReaction: lvlReactions.length
+        ? Math.round(lvlReactions.reduce((a, b) => a + b, 0) / lvlReactions.length)
+        : 0,
+      avgAccuracy: Math.round((lvlAccs.reduce((a, b) => a + b, 0) / lvlAccs.length) * 10) / 10,
+    };
+  }
+
+  await update(ref(db, `users/${uid}`), {
+    avgScore:       Math.round(avgScore    * 10) / 10,
+    avgReaction:    Math.round(avgReaction),
+    avgAccuracy:    Math.round(avgAccuracy * 10) / 10,
+    levelStats,
+    statsUpdatedAt: serverTimestamp(),
+  });
+}
+
+
 // ── LEVEL ───────────────────────────────────────────────────────────────────
 
 /** Save user's selected difficulty level — ESP32 reads this node */

@@ -8,6 +8,7 @@ import { useUserStats, useRecentScores, useGameSettings, useAllScores, useEsp32S
 import StatCard from '../components/StatCard';
 import LevelSelector from '../components/LevelSelector';
 import GameHistory from '../components/GameHistory';
+import GameControl from '../components/GameControl';
 import ProgressChart from '../components/ProgressChart';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -148,6 +149,9 @@ export default function Dashboard() {
 
         {/* Quick stats sidebar */}
         <div className="space-y-4">
+          {/* Game Control Panel */}
+          <GameControl effectiveOnline={effectiveOnline} />
+
           {/* Performance summary */}
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-4">
